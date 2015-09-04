@@ -1,54 +1,180 @@
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
+import random
 
-# C extensions
-*.so
+def print_intro():
+    print("""Congrats, you are the newest
+ruler of ancient Samaria, elected for a ten year term of office. Your
+duties are to distribute food, direct farming, and buy and sell land as
+needed to support your people. Watch out for rat infestations and the
+resultant plague! Grain is the general currenly, measured in bushels.
+The following will help you in your decision:
 
-# Distribution / packaging
-.Python
-env/
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-*.egg-info/
-.installed.cfg
-*.egg
+* Each person needs at least 20 bushels of grain per year to survive.
+* Each personcan farm at most 10 acres of land.
+* It takes 2 bushels of grain to farm an acre of land.
+* The market price for land fluctuates yearly.
 
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
+Rule wisely and you will be showered with appreciation at the end of
+your term. Rule poorly and you will be kicked out of office!
+""")
 
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
 
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*,cover
+def ask_to_buy_land(bushels,cost):
+    '''Ask user how many bushels to spend buying land.'''
+    acres = input("How many acres will you buy?")
+    while acres * cost > bushels:
+        print("O great Hammurabi, we have but "+str(bushels)+" bushels of grain!")
+        acres = input("How many acres will you buy?")
+    return acres
 
-# Translations
-*.mo
-*.pot
+def ask_to_sell_land(acres):
+    '''Ask user how much land they want to sell.'''
+    acres_sell = input("How many acres will you sell?")
+    while acres_sell > acres:
+        print("O great Hammurabi, we only have "+str(acres)+" acres of land for sale!")
+        acres_sell = input("How many acres will you sell?")
+    return acres_sell
 
-# Django stuff:
-*.log
+def ask_to_feed(bushels):
+    '''Ask user how many bushels they want to use for feeding.'''
+    feeding_bushels = input("How many bushels will you use for feeding?")
+    while feeding_bushels > bushels:
+        print("O great Hammurabi, we only have "+str(bushels)+" bushels available for feeding!")
+        feeding_bushels = input("How many bushels will you use for feeding?")
+    return feeding_bushels
+
+def ask_to_cultivate(acres, population, bushels):
+    '''Ask user how much land they want to plant seed in.'''
+    acres_cultivate = input("How many acres of land will you plant seed in?")
+    while (acres_cultivate > 10 * population) or (acres_cultivate > acres) or (bushels < 2 * acres_cultivate):
+        print("O great Hammurabi, we have no enough material available to cultivate so much land.")
+        acres_cultivate = input("How many acres of land will you plant seed in?")
+    return acres_cultivate
+
+def isPlague():
+    a = random.randint(1,100)
+    if a <= 15:
+        return True
+    else:
+        return False
+
+def numStarving(population, bushels):
+    if population * 20 <= bushels:
+        return 0
+    else:
+        starving_num = int((population * 20 - bushels)/20)
+        return starving_num
+
+def numImmigrants(land_owned, grainInStorage, population, numStarving):
+    if numStarving > 0:
+        return 0
+    else:
+        return int((20 * land_owned + grainInStorage)/(100 * population + 1))
+
+def getHarvest(acres_planted,bushels_per_acre):
+    return acres_planted*bushels_per_acre
+
+def doRatsInfest(grain_total):
+    a = random.uniform(0.1,0.3)
+    b = random.randint(1,100)
+    if b <= 40:
+        return int(a*grain_total)
+    else:
+        return 0
+
+def priceOfLand():
+    return random.randint(16,22)
+
+def resultEvaluation(numStarved_total,acres_left):
+    print("Congrat! After 10 years management, your final evaluation is as follows:")
+    print("Total number of people starved: "+str(numStarved_total)+'.')
+    print("Total acres owned at the end: "+str(acres_left)+'.')
+
+            
+def Hammurabi():
+    starved = 0
+    total_starved = 0
+    immigrants = 5
+    population = 100
+    harvest = 3000       # total bushels harvested
+    bushels_per_acre = 3 # amount harvested for each acre planted
+    rats_ate = 200       # bushels destroyed by rats
+    bushels_in_storage = 2800
+    acres_owned = 1000
+    cost_per_acre = 19   # each acre costs this many bushels
+    plague_deaths = 0
+
+    print_intro()
+
+    year = 1
+    while year < 11:
+        print('O great Hammurabi!')
+        print('You are in year '+str(year)+' of your ten year rule.')
+        print('In the previous year '+str(starved)+' people starved to dealth.')
+        print('In the previous year '+str(immigrants)+' people entered the kingdom.')
+        print('The population is now '+str(population)+'.')
+        print('We harvested '+str(harvest)+' bushels at '+str(bushels_per_acre)+' bushels per acre.')
+        print('Rats destroyed '+str(rats_ate)+' bushels, leaving '+str(bushels_in_storage)+' bushels in storage.')
+        print('The city owns '+str(acres_owned)+' acres of land.')
+        print('Land is currently worth '+str(cost_per_acre)+' bushels per acre.')
+        print('There were '+str(plague_deaths)+' deaths from the plague.')
+
+
+        A = ask_to_buy_land(bushels_in_storage,cost_per_acre)
+        bushels_in_storage -= A * cost_per_acre
+        acres_owned += A
+            
+        B = ask_to_sell_land(acres_owned)
+        bushels_in_storage += B * cost_per_acre
+        acres_owned -= B
+
+        C = ask_to_feed(bushels_in_storage)
+        bushels_in_storage -= C
+
+        D = ask_to_cultivate(acres_owned, population, bushels_in_storage)
+        bushels_in_storage -= D * 2
+
+        plague_deaths = int(isPlague() * 0.5 * population)
+        population -= plague_deaths
+        if C < population * 20 * 0.55:
+            print("O great Hammurabi, since you have caused over 45% starved in this year you are fired!")
+            break
+        else:
+            starved = numStarving(population,C)
+            population -= starved
+            total_starved += starved
+
+        immigrants = numImmigrants(acres_owned, bushels_in_storage,population,starved)
+
+        population += immigrants
+
+        bushels_per_acre = random.randint(1,8)
+        
+        harvest = getHarvest(D,bushels_per_acre)
+
+        bushels_in_storage += harvest
+
+        rats_ate = doRatsInfest(bushels_in_storage)
+
+        bushels_in_storage -= rats_ate
+
+        cost_per_acre = priceOfLand()
+
+        year += 1
+
+    if year < 10:
+        print("since you have not finished the 10-year roll, you have no evaluation!")
+    else:
+        resultEvaluation(total_starved,acres_owned)
+
+
+if __name__ == "__main__":
+    Hammurabi()
+
+
+
+
+
+
 
 # Sphinx documentation
 docs/_build/
